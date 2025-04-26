@@ -14,10 +14,22 @@ getAllPaths() {
     fi
 }
 
+fixedArgs=()
+
+for arg in "$@"; do
+    if [[ "$arg" == *^* ]]; then
+        # Has output specifier
+        fixedArgs+=("$arg")
+    else
+        # No output specifier
+        fixedArgs+=("${arg}^*")
+    fi
+done
+
 stdenv="$(getPath nixpkgs\#stdenv)"
 store="$(nix eval --raw --expr builtins.storeDir)"
 bashPath="$(dirname "$(realpath "$(type -p bash)")")"
-allPaths="$(getAllPaths "$@")"
+allPaths="$(getAllPaths "${fixedArgs[@]}")"
 
 exec bash --rcfile /proc/self/fd/19 19<<END
 export NIX_BUILD_TOP="$(pwd)"
