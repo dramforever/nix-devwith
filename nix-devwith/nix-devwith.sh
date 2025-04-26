@@ -2,6 +2,11 @@
 
 set -e -o pipefail
 
+usage() {
+    echo "Usage: $0 [--stdenv INSTALLABLE] [--] INSTALLABLES"
+    exit 1
+}
+
 getPath() {
     nix build --no-link --json "$@" | jq -r '.[].outputs[]'
 }
@@ -13,6 +18,37 @@ getAllPaths() {
         getPath "$@"
     fi
 }
+
+opts="$(getopt --name nix-devwith --shell bash --options '' \
+    --longoptions 'stdenv:,help,usage' \
+    -- "$@" \
+    || usage >&2)"
+
+eval set -- "$opts"
+
+stdenv="nixpkgs#stdenv"
+
+while true; do
+    case "$1" in
+        --stdenv)
+            shift
+            stdenv="$1"
+            shift
+            ;;
+        --help|--usage)
+            shift
+            usage
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Shouldn't happen while parsing arguments?" >&2
+            exit 1
+            ;;
+    esac
+done
 
 fixedArgs=()
 
@@ -26,7 +62,7 @@ for arg in "$@"; do
     fi
 done
 
-stdenv="$(getPath nixpkgs\#stdenv)"
+stdenvPath="$(getPath "$stdenv")"
 store="$(nix eval --raw --expr builtins.storeDir)"
 bashPath="$(dirname "$(realpath "$(type -p bash)")")"
 allPaths="$(getAllPaths "${fixedArgs[@]}")"
@@ -38,7 +74,7 @@ export out="/var/empty"
 export buildInputs="$allPaths"
 export noDumpEnvVars=1
 export savedPath="\$PATH"
-source "$stdenv"/setup
+source "$stdenvPath"/setup
 unset NIX_ENFORCE_PURITY
 export PATH="$bashPath:\$PATH:\$savedPath"
 [ -f ~/.bashrc ] && source ~/.bashrc

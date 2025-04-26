@@ -1,9 +1,9 @@
 { writeShellApplication
-, coreutils, jq
+, util-linux, coreutils, jq
 }:
 
 writeShellApplication {
   name = "nix-devwith";
   text = builtins.readFile ./nix-devwith.sh;
-  runtimeInputs = [ coreutils jq ];
+  runtimeInputs = [ util-linux coreutils jq ];
 }
