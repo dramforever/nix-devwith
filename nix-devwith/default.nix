@@ -1,16 +1,9 @@
-{ substituteAll
-, runtimeShell, coreutils, jq
+{ writeShellApplication
+, coreutils, jq
 }:
 
-substituteAll {
+writeShellApplication {
   name = "nix-devwith";
-  src = ./nix-devwith.sh;
-  dir = "bin";
-  isExecutable = true;
-
-  shell = runtimeShell;
-
-  jq = "${jq}/bin/jq";
-  dirname = "${coreutils}/bin/dirname";
-  realpath = "${coreutils}/bin/realpath";
+  text = builtins.readFile ./nix-devwith.sh;
+  runtimeInputs = [ coreutils jq ];
 }
