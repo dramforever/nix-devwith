@@ -10,26 +10,16 @@
         let
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [ self.overlay ];
+            overlays = [ self.overlays.default ];
           };
-        in {
+        in rec {
           inherit (pkgs) nix-devwith;
+          default = nix-devwith;
         };
-
-        apps = {
-          nix-devwith = {
-            type = "app";
-            description = "nix-devwith";
-            program = "${self.packages.${system}.nix-devwith}/bin/nix-devwith";
-          };
-        };
-
-        defaultPackage = self.packages.${system}.nix-devwith;
-        defaultApp = self.apps.${system}.nix-devwith;
     }) // {
       checks = self.packages;
 
-      overlay = final: prev: {
+      overlays.default = final: prev: {
         nix-devwith = final.callPackage ./nix-devwith {};
       };
     };
