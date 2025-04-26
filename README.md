@@ -32,7 +32,7 @@ $ nix-devwith nixpkgs#autoPatchelfHook
 Cross compilation: (Uses Bash [brace expansion])
 
 ```console
-$ nix-devwith --stdenv pkgsCross.riscv64.{stdenv,openssl,pkgsBuildHost.clang}
+$ nix-devwith --stdenv nixpkgs#pkgsCross.riscv64.{stdenv,openssl,pkgsBuildHost.clang}
 ```
 
 [brace expansion]: https://www.gnu.org/software/bash/manual/html_node/Brace-Expansion.html
